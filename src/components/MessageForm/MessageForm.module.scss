@@ -1,0 +1,48 @@
+.form {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.buttons-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 24px;
+}
+
+.text-input {
+  height: 100%;
+  width: 100%;
+  border-radius: 5px;
+  padding: 20px 16px;
+  padding-right: 180px;
+  border: 2px solid #02040f;
+  font-weight: 500;
+  font-size: 16px;
+  color: #424242;
+  letter-spacing: 0.06em;
+  &::placeholder {
+    font-weight: 500;
+    font-size: 16px;
+    opacity: 0.8;
+    color: #424242;
+    letter-spacing: 0.06em;
+  } 
+}
+
+.send-btn {
+  border: none;
+  outline: none;
+  background: transparent;
+  max-width: 50px;
+  cursor: pointer;
+}
+
+.loadMore-btn {
+}
