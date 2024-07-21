@@ -39,4 +39,5 @@ type TokenService interface {
 	ParseRefreshToken(refreshToken string) (int, time.Time, error)
 	ParseAccessToken(accessToken string) (int, error)
 	AddTokenToBlacklist(refreshToken string, expiresAt time.Time) error
+	TokenInBlackList(refreshToken string) bool
 }

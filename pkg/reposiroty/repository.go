@@ -30,4 +30,5 @@ type UserRepository interface {
 	Create(user *model.User) (int, error)
 	Get(username, password string) (model.User, error)
 	AddTokenToBlacklist(refreshToken string, expiresAt time.Time) error
+	TokenInBlackList(refreshToken string) bool
 }

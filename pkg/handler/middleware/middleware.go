@@ -9,9 +9,8 @@ import (
 )
 
 const (
-	AuthorizationHeader = "Authorization"
-	RefreshHeader       = "X-Refresh-Token"
-	UserCtx             = "userID"
+	authorizationHeader = "Authorization"
+	userCtx             = "userID"
 )
 
 type Middleware struct {
@@ -23,7 +22,7 @@ func NewMiddleware(service *service.Service) *Middleware {
 }
 
 func (m *Middleware) UserIdentity(c *gin.Context) {
-	header := c.GetHeader(AuthorizationHeader)
+	header := c.GetHeader(authorizationHeader)
 	if header == "" {
 		response.NewErrorResonse(c, http.StatusUnauthorized, "Authorization header is required")
 		return
@@ -41,5 +40,5 @@ func (m *Middleware) UserIdentity(c *gin.Context) {
 		return
 	}
 
-	c.Set(UserCtx, userID)
+	c.Set(userCtx, userID)
 }

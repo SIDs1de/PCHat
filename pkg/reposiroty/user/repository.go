@@ -57,3 +57,14 @@ func (r *UserRepository) AddTokenToBlacklist(refreshToken string, expiresAt time
 
 	return nil
 }
+
+func (r *UserRepository) TokenInBlackList(refreshToken string) bool {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE token = $1", TokensBlackList)
+	_, err := r.db.Exec(query, refreshToken)
+
+	if err != nil {
+		return false
+	}
+
+	return true
+}

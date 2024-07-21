@@ -3,7 +3,6 @@ package auth
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"online_chat/pkg/handler/middleware"
 	"online_chat/pkg/handler/response"
 	"online_chat/pkg/model"
 	"online_chat/pkg/service"
@@ -57,9 +56,9 @@ func (a *Authorization) SignIn(c *gin.Context) {
 }
 
 func (a *Authorization) LogOut(c *gin.Context) {
-	header := c.GetHeader(middleware.RefreshHeader)
+	header := c.GetHeader(refreshHeader)
 	if header == "" {
-		response.NewErrorResonse(c, http.StatusUnauthorized, "empty refresh header")
+		response.NewErrorResonse(c, http.StatusUnauthorized, "Empty refresh header")
 		return
 	}
 

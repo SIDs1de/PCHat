@@ -45,3 +45,7 @@ func (t *TokenService) ParseAccessToken(accessToken string) (int, error) {
 
 	return claims.UserID, nil
 }
+
+func (t *TokenService) TokenInBlackList(refreshToken string) bool {
+	return t.userRepository.TokenInBlackList(refreshToken)
+}

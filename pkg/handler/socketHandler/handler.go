@@ -42,5 +42,4 @@ func (s *SocketHandler) ReadMessage(conn *websocket.Conn) error {
 
 		s.sendMessage(msg)
 	}
-	return nil
 }
