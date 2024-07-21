@@ -23,8 +23,8 @@ func (a *Authorization) RefreshAccessToken(c *gin.Context) {
 		return
 	}
 
-	if ok := a.service.TokenService.TokenInBlackList(refreshToken); !ok {
-		response.NewErrorResonse(c, http.StatusInternalServerError, "Refresh token in blacklist")
+	if ok := a.service.TokenService.TokenInBlackList(refreshToken); ok {
+		response.NewErrorResonse(c, http.StatusUnauthorized, "Refresh token in blacklist")
 		return
 	}
 

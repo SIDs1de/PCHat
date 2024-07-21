@@ -49,7 +49,7 @@ func (r *UserRepository) Get(username, password string) (model.User, error) {
 
 func (r *UserRepository) AddTokenToBlacklist(refreshToken string, expiresAt time.Time) error {
 
-	query := fmt.Sprintf("INSERT INTO %s (tokens, expires_at) VALUES ($1, $2)", TokensBlackList)
+	query := fmt.Sprintf("INSERT INTO %s (token, expires_at) VALUES ($1, $2)", TokensBlackList)
 	_, err := r.db.Exec(query, refreshToken, expiresAt)
 	if err != nil {
 		return err
@@ -60,11 +60,11 @@ func (r *UserRepository) AddTokenToBlacklist(refreshToken string, expiresAt time
 
 func (r *UserRepository) TokenInBlackList(refreshToken string) bool {
 	query := fmt.Sprintf("SELECT * FROM %s WHERE token = $1", TokensBlackList)
-	_, err := r.db.Exec(query, refreshToken)
+	rows, _ := r.db.Query(query, refreshToken)
 
-	if err != nil {
-		return false
+	if rows.Next() {
+		return true
 	}
 
-	return true
+	return false
 }
