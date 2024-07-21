@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"net/http"
+	"online_chat/pkg/handler/response"
 )
 
 var upgrader = websocket.Upgrader{
@@ -22,15 +23,15 @@ type Message struct {
 func (h *Handler) handleConnections(c *gin.Context) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		newErrorResonse(c, http.StatusInternalServerError, err.Error())
+		response.NewErrorResonse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	h.SocketHandler.Clients[conn] = true
+	h.socketHandler.Clients[conn] = true
 
 	go func() {
-		if err = h.SocketHandler.ReadMessage(conn); err != nil {
-			newErrorResonse(c, http.StatusBadRequest, err.Error())
+		if err = h.socketHandler.ReadMessage(conn); err != nil {
+			response.NewErrorResonse(c, http.StatusBadRequest, err.Error())
 			return
 		}
 	}()

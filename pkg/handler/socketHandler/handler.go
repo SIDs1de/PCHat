@@ -11,6 +11,10 @@ type SocketHandler struct {
 	Service *service.Service
 }
 
+func NewSocketHandler(clients map[*websocket.Conn]bool, service *service.Service) *SocketHandler {
+	return &SocketHandler{Clients: clients, Service: service}
+}
+
 func (s *SocketHandler) ReadMessage(conn *websocket.Conn) error {
 	defer conn.Close()
 	for {

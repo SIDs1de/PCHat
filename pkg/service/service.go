@@ -35,7 +35,8 @@ type UserService interface {
 
 type TokenService interface {
 	GenerateTokens(username, password string) (string, string, error)
-	ParseRefreshToken(refreshToken string) (time.Time, error)
+	GenerateAccessToken(userID int) (string, error)
+	ParseRefreshToken(refreshToken string) (int, time.Time, error)
 	ParseAccessToken(accessToken string) (int, error)
 	AddTokenToBlacklist(refreshToken string, expiresAt time.Time) error
 }

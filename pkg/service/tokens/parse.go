@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func (t *TokenService) ParseRefreshToken(refreshToken string) (time.Time, error) {
+func (t *TokenService) ParseRefreshToken(refreshToken string) (int, time.Time, error) {
 	token, err := jwt.ParseWithClaims(refreshToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
@@ -15,15 +15,15 @@ func (t *TokenService) ParseRefreshToken(refreshToken string) (time.Time, error)
 		return []byte(signingRefreshKey), nil
 	})
 	if err != nil {
-		return time.Time{}, err
+		return 0, time.Time{}, err
 	}
 
 	claims, ok := token.Claims.(*tokenClaims)
 	if !ok {
-		return time.Time{}, errors.New("tokens claims are not of type *tokenClaims")
+		return 0, time.Time{}, errors.New("tokens claims are not of type *tokenClaims")
 	}
 
-	return time.Unix(claims.ExpiresAt, 0), nil
+	return claims.UserID, time.Unix(claims.ExpiresAt, 0), nil
 }
 
 func (t *TokenService) ParseAccessToken(accessToken string) (int, error) {

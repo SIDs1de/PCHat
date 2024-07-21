@@ -25,13 +25,13 @@ func (t *TokenService) GenerateTokens(username, password string) (string, string
 	return refreshToken, accessToken, nil
 }
 
-func (t *TokenService) GenerateAccessToken(id int) (string, error) {
+func (t *TokenService) GenerateAccessToken(userID int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(accessTokenTTL).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
-		id,
+		userID,
 	})
 	return token.SignedString([]byte(signingAccessKey))
 }
