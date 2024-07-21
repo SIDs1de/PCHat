@@ -26,11 +26,11 @@ func (h *Handler) userIdentity(c *gin.Context) {
 		return
 	}
 
-	userID, err := h.Service.TokenService.ParseAccessToken(accessToken[1])
-	if err != nil {
-		//h.Service.TokenService.GenerateTokens()
-		return
-	}
-
-	c.Set(userCtx, userID)
+	//userID, err := h.Service.TokenService.ParseAccessToken(accessToken[1])
+	//if err != nil {
+	//	//h.Service.TokenService.GenerateTokens()
+	//	return
+	//}
+	//
+	//c.Set(userCtx, userID)
 }
