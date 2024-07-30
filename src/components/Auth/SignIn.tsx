@@ -1,19 +1,27 @@
-// SignIn.js
 import { useState } from 'react'
+import { useSignInMutation } from '../../store/api/authApi'
+import { setTokens } from '../../utils/tokenUtils'
 import { useDispatch } from 'react-redux'
-import { loginUser } from '../../store/authSlice'
 
 const SignIn = () => {
-  const dispatch = useDispatch()
+  const [signIn] = useSignInMutation()
   const [form, setForm] = useState({ username: '', password: '' })
+
+  const dispatch = useDispatch()
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault()
-    dispatch(loginUser(form))
+    try {
+      const data = await signIn(form).unwrap()
+      setTokens(data.access_token, data.refresh_token)
+      dispatch(setCredentials({ user, accessToken, refreshToken }))
+    } catch (error) {
+      console.error('Не удалось войти в аккаунт:', error)
+    }
   }
 
   return (

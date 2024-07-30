@@ -9,9 +9,10 @@ export default function useWebSocket({ setValue, setConnected, setMessages, valu
   const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL
 
   const connect = () => {
-    socket.current = new WebSocket(WEBSOCKET_URL)
+    socket.current = new WebSocket(WEBSOCKET_URL, 'protocol', { headers: { 'access_token': 'value' } })
 
     socket.current.onopen = () => {
+      console.log(123123)
       setConnected(true)
       const name = 'Анонимный пользователь № ' + ('' + Date.now()).slice(-6)
       setAuthor_name(name)
@@ -21,6 +22,7 @@ export default function useWebSocket({ setValue, setConnected, setMessages, valu
         send_at: new Date(),
         message: `${name} подключился`,
       }
+      console.log(message)
       socket.current.send(JSON.stringify(message))
     }
 

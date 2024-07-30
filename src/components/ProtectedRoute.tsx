@@ -3,8 +3,9 @@ import { useAuth } from '../hooks/useAuth'
 
 const ProtectedRoute = ({ children }) => {
   const auth = useAuth()
+  console.log(auth)
 
-  if (!auth.user) {
+  if (!auth.accessToken) {
     return <Navigate to='/signin' />
   }
 

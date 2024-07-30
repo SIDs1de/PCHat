@@ -11,19 +11,9 @@ const App = () => {
         <Route path='/' element={<MainPage />} />
         <Route path='/signin' element={<SignIn />} />
         <Route path='/signup' element={<SignUp />} />
-        <Route
-          path='/protected'
-          element={
-            <ProtectedRoute>
-              <ProtectedComponent />
-            </ProtectedRoute>
-          }
-        />
       </Routes>
     </Router>
   )
 }
-
-const ProtectedComponent = () => <div>Protected Content</div> 
 
 export default App

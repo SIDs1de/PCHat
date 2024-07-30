@@ -1,19 +1,22 @@
-// SignUp.js
 import { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { registerUser } from '../../store/authSlice'
+import { useSignUpMutation } from '../../store/api/authApi'
+import { setTokens } from '../../utils/tokenUtils'
 
 const SignUp = () => {
-  const dispatch = useDispatch()
+  const [signUp] = useSignUpMutation()
   const [form, setForm] = useState({ name: '', username: '', password: '' })
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault()
-    dispatch(registerUser(form))
+    try {
+      const data = await signUp(form).unwrap()
+    } catch (error) {
+      console.error('Не удалось зарегистрироваться:', error)
+    }
   }
 
   return (
