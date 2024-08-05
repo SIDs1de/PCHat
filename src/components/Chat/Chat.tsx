@@ -2,15 +2,16 @@ import styles from './Chat.module.scss'
 import { useEffect, useState } from 'react'
 import useScrollToEnd from '../../hooks/useScrollToEnd'
 import useWebSocket from '../../hooks/useWebSocket'
-import MainButtons from '../MainButtons/MainButtons'
+import MainButton from '../MainButton/MainButton'
 import MessageForm from '../MessageForm/MessageForm'
 import MessageList from '../MessageList/MessageList'
+import { getToken } from '../../utils/tokenUtils'
+import { useActions } from '../../hooks/useActions'
 
 export default function Chat() {
   const [messages, setMessages] = useState([])
   const [value, setValue] = useState('')
   const [connected, setConnected] = useState(false)
-
   const { scrollableRef } = useScrollToEnd(messages)
   const { socketCurrent, sendMessage, connect, loadMore } = useWebSocket({ setValue, setConnected, setMessages, value })
 
@@ -28,25 +29,36 @@ export default function Chat() {
       setValue('')
     }
   }
+  const access_token = getToken()
 
-  if (!connected) {
-    return (
-      <section className={`${styles['chat-section']}`}>
-        <div className={`${styles['full-height']}`}></div>
-        <div className={`${styles['bottom-panel']}`}>
-          <MainButtons onClick={connect} />
-        </div>
-      </section>
-    )
+  const onEnterClick = async () => {
+    if (access_token) {
+      // Нужно получить данные пользователя getUser
+    } else {
+      // Пользователь не авторизован
+    }
   }
 
-  return (
+  return connected ? (
     <section className={`${styles['chat-section']}`}>
       <div ref={scrollableRef} className={styles['chat-inner']}>
         <MessageList messages={messages} />
       </div>
       <div className={`${styles['bottom-panel']}`}>
-        <MessageForm value={value} onChange={e => setValue(e.target.value)} onPressEnter={onPressEnter} onSend={() => sendMessage('message', value)} onLoadMore={loadMore} />
+        <MessageForm
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          onPressEnter={onPressEnter}
+          onSend={() => sendMessage('message', value)}
+          onLoadMore={loadMore}
+        />
+      </div>
+    </section>
+  ) : (
+    <section className={`${styles['chat-section']}`}>
+      <div className={`${styles['full-height']}`}></div>
+      <div className={`${styles['bottom-panel']}`}>
+        <MainButton onEnterClick={onEnterClick} />
       </div>
     </section>
   )

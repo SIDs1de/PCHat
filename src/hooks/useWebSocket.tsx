@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useTypedSelector } from './useTypedSelector'
 
 export default function useWebSocket({ setValue, setConnected, setMessages, value }) {
   const [author_name, setAuthor_name] = useState('')
@@ -9,10 +10,9 @@ export default function useWebSocket({ setValue, setConnected, setMessages, valu
   const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL
 
   const connect = () => {
-    socket.current = new WebSocket(WEBSOCKET_URL, 'protocol', { headers: { 'access_token': 'value' } })
+    socket.current = new WebSocket(WEBSOCKET_URL)
 
     socket.current.onopen = () => {
-      console.log(123123)
       setConnected(true)
       const name = 'Анонимный пользователь № ' + ('' + Date.now()).slice(-6)
       setAuthor_name(name)
@@ -56,7 +56,7 @@ export default function useWebSocket({ setValue, setConnected, setMessages, valu
         console.error('Socket закрыт. Соединение прервано')
       }
     }
-    socket.current.onerror = () => console.error('Socket произошла ошибка')
+    socket.current.onerror = err => console.error('Socket произошла ошибка', err)
   }
 
   const loadMore = () => {

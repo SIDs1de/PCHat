@@ -1,6 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-const initialState = {
+export interface IBurger {
+  isBurgerOpen: boolean
+}
+
+const initialState: IBurger = {
   isBurgerOpen: false,
 }
 
