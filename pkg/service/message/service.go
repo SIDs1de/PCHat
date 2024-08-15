@@ -1,11 +1,13 @@
 package message
 
-import "online_chat/pkg/reposiroty"
+import (
+	"online_chat/pkg/repository"
+)
 
 type MessageService struct {
-	messageRepository reposiroty.MessageRepository
+	messageRepository repository.MessageRepository
 }
 
-func NewMessageService(messageRepository reposiroty.MessageRepository) *MessageService {
+func NewMessageService(messageRepository repository.MessageRepository) *MessageService {
 	return &MessageService{messageRepository: messageRepository}
 }

@@ -1,9 +1,9 @@
 package message
 
 import (
-	"online_chat/pkg/model"
+	"online_chat/pkg/domain/models"
 )
 
-func (s *MessageService) Create(message model.Message) (int, error) {
+func (s *MessageService) Create(message models.Message) (int, error) {
 	return s.messageRepository.Create(message)
 }

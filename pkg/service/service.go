@@ -1,8 +1,8 @@
 package service
 
 import (
-	"online_chat/pkg/model"
-	"online_chat/pkg/reposiroty"
+	"online_chat/pkg/domain/models"
+	"online_chat/pkg/repository"
 	"online_chat/pkg/service/message"
 	"online_chat/pkg/service/tokens"
 	"online_chat/pkg/service/user"
@@ -15,29 +15,32 @@ type Service struct {
 	TokenService
 }
 
-func NewService(repo *reposiroty.Repository) *Service {
+func NewService(repo *repository.Repository) *Service {
+	tokenService := tokens.NewTokenService(repo.UserRepository)
 	return &Service{
 		MessageService: message.NewMessageService(repo.MessageRepository),
-		UserService:    user.NewUserService(repo.UserRepository),
-		TokenService:   tokens.NewTokenService(repo.UserRepository),
+		TokenService:   tokenService,
+		UserService:    user.NewUserService(repo.UserRepository, tokenService),
 	}
 }
 
 type MessageService interface {
-	GetAll() ([]model.Message, error)
-	GetPart(id int) ([]model.Message, error)
-	Create(message model.Message) (int, error)
+	GetAll() ([]models.Message, error)
+	GetPart(id int) ([]models.Message, error)
+	Create(message models.Message) (int, error)
 }
 
 type UserService interface {
-	Create(user *model.User) (int, error)
+	Create(user *models.User) (int, error)
+	Login(username, password string) (string, string, error)
 }
 
 type TokenService interface {
-	GenerateTokens(username, password string) (string, string, error)
-	GenerateAccessToken(userID int) (string, error)
-	ParseRefreshToken(refreshToken string) (int, time.Time, error)
-	ParseAccessToken(accessToken string) (int, error)
+	GenerateRefreshToken(userID int, userName, userLogin string) (string, error)
+	GenerateAccessToken(userID int, userName, userLogin string) (string, error)
+	ParseExpireRefreshToken(refreshToken string) (time.Time, error)
+	ParseRefreshToken(refreshToken string) (models.ResponseUser, error)
+	ParseAccessToken(accessToken string) (models.ResponseUser, error)
 	AddTokenToBlacklist(refreshToken string, expiresAt time.Time) error
 	TokenInBlackList(refreshToken string) bool
 }

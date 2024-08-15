@@ -3,14 +3,13 @@ package message
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"online_chat/pkg/model"
+	"online_chat/pkg/domain/models"
 	"sync"
 	"time"
 )
 
 const (
 	MessagesTable = "messages"
-	UsersTable    = "users"
 )
 
 type MessageRepository struct {
@@ -24,7 +23,7 @@ func NewMessageRepository(db *sqlx.DB) *MessageRepository {
 	}
 }
 
-func (r *MessageRepository) Create(message model.Message) (int, error) {
+func (r *MessageRepository) Create(message models.Message) (int, error) {
 	r.m.Lock()
 	defer r.m.Unlock()
 
@@ -38,11 +37,11 @@ func (r *MessageRepository) Create(message model.Message) (int, error) {
 	return id, nil
 }
 
-func (r *MessageRepository) GetAll() ([]model.Message, error) {
+func (r *MessageRepository) GetAll() ([]models.Message, error) {
 	r.m.RLock()
 	defer r.m.RUnlock()
 
-	var messages []model.Message
+	var messages []models.Message
 	query := fmt.Sprintf("SELECT * FROM %s ORDER BY send_at", MessagesTable)
 	if err := r.db.Select(&messages, query); err != nil {
 		return messages, err
@@ -51,23 +50,18 @@ func (r *MessageRepository) GetAll() ([]model.Message, error) {
 	return messages, nil
 }
 
-func (r *MessageRepository) GetPart(lastID int) ([]model.Message, error) {
+func (r *MessageRepository) GetPart(lastID int) ([]models.Message, error) {
 	r.m.RLock()
 	defer r.m.RUnlock()
 
-	var messages []model.Message
+	var messages []models.Message
 	var query string
 	query = fmt.Sprintf(
-		"WITH messages_below_id AS ("+
-			"SELECT * "+
+		"SELECT * "+
 			"FROM %s "+
 			"WHERE id < $1 "+
-			"ORDER BY id DESC "+
-			"LIMIT 10"+
-			") "+
-			"SELECT * "+
-			"FROM messages_below_id "+
-			"ORDER BY send_at DESC;", MessagesTable)
+			"ORDER BY send_at DESC "+
+			"LIMIT 50;", MessagesTable)
 	if err := r.db.Select(&messages, query, lastID); err != nil {
 		return messages, err
 	}

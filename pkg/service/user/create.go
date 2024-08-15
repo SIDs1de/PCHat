@@ -3,14 +3,14 @@ package user
 import (
 	"crypto/sha1"
 	"fmt"
-	"online_chat/pkg/model"
+	"online_chat/pkg/domain/models"
 )
 
 const (
 	salt = "dshjsjhkf387879sdif28j9"
 )
 
-func (s *UserService) Create(user *model.User) (int, error) {
+func (s *UserService) Create(user *models.User) (int, error) {
 	user.Password = GeneratePasswordHash(user.Password)
 	return s.userRepository.Create(user)
 }

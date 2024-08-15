@@ -2,16 +2,16 @@ package socketHandler
 
 import (
 	"github.com/gorilla/websocket"
-	"online_chat/pkg/model"
+	"online_chat/pkg/domain/models"
 )
 
-func (s *SocketHandler) handleConnection(conn *websocket.Conn, msg model.Message) (int, error) {
-	id, err := s.Service.MessageService.Create(msg)
+func (s *SocketHandler) handleConnection(conn *websocket.Conn, msg *models.Message) error {
+	id, err := s.Service.MessageService.Create(*msg)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	msg.Id = id
-	return msg.Id, s.loadMessages(conn, msg.Id)
+	return s.loadMessages(conn, msg.Id)
 }
 
 func (s *SocketHandler) loadMessages(conn *websocket.Conn, id int) error {
@@ -20,11 +20,10 @@ func (s *SocketHandler) loadMessages(conn *websocket.Conn, id int) error {
 		return err
 	}
 
-	history := model.History{
+	history := models.History{
 		Event:    "oldMessages",
 		Messages: messages,
 	}
 
-	s.sendHistory(history, conn)
-	return nil
+	return s.sendHistory(history, conn)
 }

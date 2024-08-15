@@ -2,9 +2,5 @@ host: "192.168.191.53"
 port: 8000
 
 db:
-  host: "localhost"
-  port: "5432"
-  username: "postgres"
-  password: "admin"
-  dbName: "onlineChat"
-  sslMode: "disable"
+  dbms: "sqlite3"
+  storage_path: "./storage/sqlite.db"

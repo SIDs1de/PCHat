@@ -1,12 +1,15 @@
 package app
 
 import (
+	"context"
+	"errors"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"online_chat/pkg/config"
 	"online_chat/pkg/handler"
-	"online_chat/pkg/reposiroty"
+	"online_chat/pkg/repository"
+	"online_chat/pkg/repository/sql"
 	"online_chat/pkg/service"
 	"time"
 )
@@ -26,14 +29,11 @@ func NewApp() (*App, error) {
 	return a, nil
 }
 
-func (a *App) Run() error {
-	return a.runServer()
-}
-
 func (a *App) initDeps() error {
+
 	inits := []func() error{
 		a.initConfig,
-		a.initDB,
+		func() error { return a.initDB(a.config.DB.DBMS) },
 		a.initHandler,
 	}
 
@@ -47,11 +47,6 @@ func (a *App) initDeps() error {
 	return nil
 }
 
-//func (a *App) initServiceProvider() error {
-//	a.serviceProvider = newServiceProvider()
-//	return nil
-//}
-
 func (a *App) initConfig() error {
 	cfg, err := config.InitConfig()
 	if err != nil {
@@ -63,29 +58,48 @@ func (a *App) initConfig() error {
 	return nil
 }
 
-func (a *App) initDB() error {
-	db, err := NewPostgresDB(&DBConfig{
-		Host:     a.config.DB.Host,
-		Port:     a.config.DB.Port,
-		Username: a.config.DB.Username,
-		Password: a.config.DB.Password,
-		DBName:   a.config.DB.DBName,
-		SSLMode:  a.config.DB.SSLMode,
-	})
-	if err != nil {
-		logrus.Fatal(err)
+func (a *App) initDB(dbms string) error {
+	switch dbms {
+	case "postgres":
+		db, err := sql.NewPostgresDB(&sql.DBConfig{
+			Host:     a.config.DB.Postgres.Host,
+			Port:     a.config.DB.Postgres.Port,
+			Username: a.config.DB.Postgres.Username,
+			Password: a.config.DB.Postgres.Password,
+			DBName:   a.config.DB.Postgres.DBName,
+			SSLMode:  a.config.DB.Postgres.SSLMode,
+		})
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		a.db = db
+	case "sqlite3":
+		db, err := sql.NewSQLiteDB(a.config.DB.StoragePath)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		a.db = db
 	}
 
-	a.db = db
+	if a.db == nil {
+		return errors.New("the database is equal to nil")
+	}
+
 	return nil
 }
 
 func (a *App) initHandler() error {
-	repo := reposiroty.NewRepository(a.db)
-	service := service.NewService(repo)
-	a.handler = handler.NewHandler(service)
+	repo := repository.NewRepository(a.db)
+	serve := service.NewService(repo)
+	a.handler = handler.NewHandler(serve)
 
 	return nil
+}
+
+func (a *App) MustRun() {
+	if err := a.runServer(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		panic(err)
+	}
 }
 
 func (a *App) runServer() error {
@@ -98,4 +112,11 @@ func (a *App) runServer() error {
 	}
 
 	return a.httpServer.ListenAndServe()
+}
+
+func (a *App) Shutdown(ctx context.Context) {
+	_ = a.db.Close()
+	if err := a.httpServer.Shutdown(ctx); err != nil {
+		panic(err)
+	}
 }

@@ -2,10 +2,10 @@ package socketHandler
 
 import (
 	"github.com/gorilla/websocket"
-	"online_chat/pkg/model"
+	"online_chat/pkg/domain/models"
 )
 
-func (s *SocketHandler) sendMessage(msg model.Message) {
+func (s *SocketHandler) sendMessage(msg models.Message) {
 	for client := range s.Clients {
 		err := client.WriteJSON(msg)
 		if err != nil {
@@ -15,10 +15,10 @@ func (s *SocketHandler) sendMessage(msg model.Message) {
 	}
 }
 
-func (s *SocketHandler) sendHistory(history model.History, client *websocket.Conn) {
+func (s *SocketHandler) sendHistory(history models.History, client *websocket.Conn) error {
 	err := client.WriteJSON(history)
 	if err != nil {
-		_ = client.Close()
-		delete(s.Clients, client)
+		return err
 	}
+	return nil
 }

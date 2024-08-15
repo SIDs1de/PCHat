@@ -1,10 +1,10 @@
-package reposiroty
+package repository
 
 import (
 	"github.com/jmoiron/sqlx"
-	"online_chat/pkg/model"
-	"online_chat/pkg/reposiroty/message"
-	"online_chat/pkg/reposiroty/user"
+	"online_chat/pkg/domain/models"
+	"online_chat/pkg/repository/sql/message"
+	"online_chat/pkg/repository/sql/user"
 	"time"
 )
 
@@ -21,14 +21,14 @@ func NewRepository(db *sqlx.DB) *Repository {
 }
 
 type MessageRepository interface {
-	GetAll() ([]model.Message, error)
-	GetPart(id int) ([]model.Message, error)
-	Create(message model.Message) (int, error)
+	GetAll() ([]models.Message, error)
+	GetPart(id int) ([]models.Message, error)
+	Create(message models.Message) (int, error)
 }
 
 type UserRepository interface {
-	Create(user *model.User) (int, error)
-	Get(username, password string) (model.User, error)
+	Create(user *models.User) (int, error)
+	Get(username, password string) (models.User, error)
 	AddTokenToBlacklist(refreshToken string, expiresAt time.Time) error
 	TokenInBlackList(refreshToken string) bool
 }

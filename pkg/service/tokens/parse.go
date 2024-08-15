@@ -3,11 +3,12 @@ package tokens
 import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
+	"online_chat/pkg/domain/models"
 	"time"
 )
 
-func (t *TokenService) ParseRefreshToken(refreshToken string) (int, time.Time, error) {
-	token, err := jwt.ParseWithClaims(refreshToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+func (t *TokenService) ParseRefreshToken(refreshToken string) (models.ResponseUser, error) {
+	token, err := jwt.ParseWithClaims(refreshToken, &tokenRefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
 		}
@@ -15,19 +16,39 @@ func (t *TokenService) ParseRefreshToken(refreshToken string) (int, time.Time, e
 		return []byte(signingRefreshKey), nil
 	})
 	if err != nil {
-		return 0, time.Time{}, err
+		return models.ResponseUser{}, err
 	}
 
-	claims, ok := token.Claims.(*tokenClaims)
+	claims, ok := token.Claims.(*tokenRefreshClaims)
 	if !ok {
-		return 0, time.Time{}, errors.New("tokens claims are not of type *tokenClaims")
+		return models.ResponseUser{}, errors.New("tokens claims are not of type *tokenClaims")
 	}
 
-	return claims.UserID, time.Unix(claims.ExpiresAt, 0), nil
+	return claims.User, nil
 }
 
-func (t *TokenService) ParseAccessToken(accessToken string) (int, error) {
-	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+func (t *TokenService) ParseExpireRefreshToken(refreshToken string) (time.Time, error) {
+	token, err := jwt.ParseWithClaims(refreshToken, &tokenRefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid signing method")
+		}
+
+		return []byte(signingRefreshKey), nil
+	})
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	claims, ok := token.Claims.(*tokenRefreshClaims)
+	if !ok {
+		return time.Time{}, errors.New("tokens claims are not of type *tokenClaims")
+	}
+
+	return time.Unix(claims.ExpiresAt, 0), nil
+}
+
+func (t *TokenService) ParseAccessToken(accessToken string) (models.ResponseUser, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &tokenAccessClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
 		}
@@ -35,15 +56,15 @@ func (t *TokenService) ParseAccessToken(accessToken string) (int, error) {
 		return []byte(signingAccessKey), nil
 	})
 	if err != nil {
-		return 0, err
+		return models.ResponseUser{}, err
 	}
 
-	claims, ok := token.Claims.(*tokenClaims)
+	claims, ok := token.Claims.(*tokenAccessClaims)
 	if !ok {
-		return 0, errors.New("tokens claims are not of type *tokenClaims")
+		return models.ResponseUser{}, errors.New("tokens claims are not of type *tokenClaims")
 	}
 
-	return claims.UserID, nil
+	return claims.User, nil
 }
 
 func (t *TokenService) TokenInBlackList(refreshToken string) bool {

@@ -3,12 +3,12 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"online_chat/pkg/domain/models"
 	"online_chat/pkg/handler/response"
-	"online_chat/pkg/model"
 )
 
 func (h *Handler) create(c *gin.Context) {
-	var input model.Message
+	var input models.Message
 	if err := c.BindJSON(&input); err != nil {
 		response.NewErrorResonse(c, http.StatusBadRequest, err.Error())
 		return

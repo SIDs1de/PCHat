@@ -1,40 +1,32 @@
 package auth
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"online_chat/pkg/handler/response"
 )
 
 const (
-	refreshHeader = "X-Refresh-Token"
+	refreshHeader = "refresh_token"
 )
 
-func (a *Authorization) RefreshAccessToken(c *gin.Context) {
-	refreshToken := c.GetHeader(refreshHeader)
-	if refreshToken == "" {
-		response.NewErrorResonse(c, http.StatusUnauthorized, "Empty refresh header")
-		return
-	}
-
-	userID, _, err := a.service.TokenService.ParseRefreshToken(refreshToken)
+func (a *Authorization) NewAccessToken(refreshToken string) (string, error) {
+	user, err := a.service.TokenService.ParseRefreshToken(refreshToken)
 	if err != nil {
-		response.NewErrorResonse(c, http.StatusUnauthorized, "Invalid refresh token provided")
-		return
+		return "", errors.New("refresh token has expired")
 	}
 
-	if ok := a.service.TokenService.TokenInBlackList(refreshToken); ok {
-		response.NewErrorResonse(c, http.StatusUnauthorized, "Refresh token in blacklist")
-		return
+	if inBL := a.service.TokenService.TokenInBlackList(refreshToken); inBL {
+		return "", errors.New("refresh token in blacklist")
 	}
 
-	newAccessToken, err := a.service.TokenService.GenerateAccessToken(userID)
+	newAccessToken, err := a.service.TokenService.GenerateAccessToken(user.Id, user.Name, user.Login)
 	if err != nil {
-		response.NewErrorResonse(c, http.StatusInternalServerError, err.Error())
-		return
+		return "", err
 	}
 
-	c.JSON(http.StatusOK, map[string]interface{}{"access_token": newAccessToken})
+	return newAccessToken, nil
 }
 
 func (a *Authorization) Test(c *gin.Context) {

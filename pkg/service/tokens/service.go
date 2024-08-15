@@ -2,7 +2,8 @@ package tokens
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"online_chat/pkg/reposiroty"
+	"online_chat/pkg/domain/models"
+	"online_chat/pkg/repository"
 	"time"
 )
 
@@ -14,16 +15,21 @@ const (
 )
 
 type TokenService struct {
-	userRepository reposiroty.UserRepository
+	userRepository repository.UserRepository
 }
 
-func NewTokenService(userRepository reposiroty.UserRepository) *TokenService {
+func NewTokenService(userRepository repository.UserRepository) *TokenService {
 	return &TokenService{userRepository: userRepository}
 }
 
-type tokenClaims struct {
+type tokenAccessClaims struct {
 	jwt.StandardClaims
-	UserID int `json:"user_ID"`
+	User models.ResponseUser `json:"user"`
+}
+
+type tokenRefreshClaims struct {
+	jwt.StandardClaims
+	User models.ResponseUser `json:"user"`
 }
 
 func (t *TokenService) AddTokenToBlacklist(refreshToken string, expiresAt time.Time) error {
