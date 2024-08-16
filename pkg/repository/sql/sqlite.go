@@ -1,12 +1,12 @@
 package sql
 
 import (
+	_ "github.com/glebarez/sqlite"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func NewSQLiteDB(sqlitePath string) (*sqlx.DB, error) {
-	db, err := sqlx.Open("sqlite3", sqlitePath)
+	db, err := sqlx.Open("sqlite", sqlitePath)
 	if err != nil {
 		return nil, err
 	}
