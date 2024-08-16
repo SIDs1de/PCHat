@@ -30,7 +30,7 @@ func (h *Handler) handleConnections(c *gin.Context) {
 	h.socketHandler.Clients[conn] = true
 
 	go func() {
-		if err = h.socketHandler.ReadMessage(c, conn); err != nil {
+		if err = h.socketHandler.ReadMessage(conn); err != nil {
 			response.NewErrorResonse(c, http.StatusBadRequest, err.Error())
 			return
 		}

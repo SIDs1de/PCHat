@@ -1,7 +1,6 @@
 package socketHandler
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"online_chat/pkg/domain/models"
 	"online_chat/pkg/service"
@@ -16,7 +15,7 @@ func NewSocketHandler(clients map[*websocket.Conn]bool, service *service.Service
 	return &SocketHandler{Clients: clients, Service: service}
 }
 
-func (s *SocketHandler) ReadMessage(c *gin.Context, conn *websocket.Conn) error {
+func (s *SocketHandler) ReadMessage(conn *websocket.Conn) error {
 	defer conn.Close()
 	for {
 		var msg models.Message
