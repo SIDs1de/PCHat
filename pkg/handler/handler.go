@@ -53,7 +53,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 func (h *Handler) initCORS(router *gin.Engine) {
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://192.168.191.111:3000"},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization, Dnt, Referer, User-Agent"},
 		ExposeHeaders:    []string{"Content-Length"},

@@ -7,12 +7,11 @@ import (
 	"online_chat/pkg/domain/models"
 	"online_chat/pkg/handler/response"
 	"online_chat/pkg/service"
-	"strings"
 )
 
 const (
-	authorizationHeader = "Authorization"
-	UserCtx             = "user"
+	authorizationQuery = "access_token"
+	UserCtx            = "user"
 )
 
 type Middleware struct {
@@ -24,19 +23,13 @@ func NewMiddleware(service *service.Service) *Middleware {
 }
 
 func (m *Middleware) VerifyAccessToken(c *gin.Context) {
-	header := c.GetHeader(authorizationHeader)
-	if header == "" {
-		response.NewErrorResonse(c, http.StatusUnauthorized, "Authorization header is required")
+	query := c.Query(authorizationQuery)
+	if query == "" {
+		response.NewErrorResonse(c, http.StatusUnauthorized, "Access token is required")
 		return
 	}
 
-	accessToken := strings.Split(header, " ")
-	if len(accessToken) != 2 {
-		response.NewErrorResonse(c, http.StatusUnauthorized, "Bearer token is required")
-		return
-	}
-
-	user, err := m.service.TokenService.ParseAccessToken(accessToken[1])
+	user, err := m.service.TokenService.ParseAccessToken(query)
 	if err != nil {
 		response.NewErrorResonse(c, http.StatusUnauthorized, err.Error())
 		return
