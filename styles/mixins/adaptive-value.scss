@@ -1,0 +1,78 @@
+@mixin adaptive-value($property, $maxWidthContainer, $minWidthContainer, $startSize, $minSize, $type, $important: 0) {
+  $maxWidth: 1920;
+  $addSize: $startSize - $minSize;
+
+  @if $type == 1 {
+    // Строго от одной ширины до другой
+
+    #{$property}: $minSize + px;
+
+    @media (min-width: #{$maxWidthContainer + px}) {
+      $calc: #{$startSize + px};
+      #{$property}: $calc;
+    }
+
+    @media (min-width: #{$minWidthContainer + px}) and (max-width: #{$maxWidthContainer + px}) {
+      $calc: calc(
+        #{$minSize + px} + #{$addSize} *
+          ((100vw - #{$minWidthContainer + px}) / #{$maxWidthContainer - $minWidthContainer})
+      );
+
+      @if $important == 0 {
+        #{$property}: $calc;
+      } @else {
+        #{$property}: $calc !important;
+      }
+    }
+  } @else if $type == 2 {
+    // Строго от большей ширины, пропорциональное уменьшение
+
+    #{$property}: $minSize + px;
+
+    @media (min-width: #{$maxWidthContainer + px}) {
+      $calc: #{$startSize + px};
+      #{$property}: $calc;
+    }
+
+    @media (max-width: #{$maxWidthContainer + px}) {
+      $calc: calc(
+        #{$minSize + px} + #{$addSize} *
+          ((100vw - #{$minWidthContainer + px}) / #{$maxWidthContainer - $minWidthContainer})
+      );
+
+      @if $important == 0 {
+        #{$property}: $calc;
+      } @else {
+        #{$property}: $calc !important;
+      }
+    }
+  } @else if $type == 3 {
+    // Строго от меньшей ширины, пропорциональное увеличение
+
+    #{$property}: $minSize + px;
+
+    @media (min-width: #{$minWidthContainer + px}) {
+      $calc: calc(
+        #{$minSize + px} + #{$addSize} *
+          ((100vw - #{$minWidthContainer + px}) / #{$maxWidthContainer - $minWidthContainer})
+      );
+
+      @if $important == 0 {
+        #{$property}: $calc;
+      } @else {
+        #{$property}: $calc !important;
+      }
+    }
+  } @else if $type == 4 {
+    // Пропорциональное увеличение и уменьшение
+
+    $calc: calc(
+      #{$minSize +
+        px} +
+        #{$addSize} *
+        ((100vw - #{$minWidthContainer + px}) / #{$maxWidthContainer - $minWidthContainer})
+    );
+
+    #{$property}: $calc;
+  }
+}
