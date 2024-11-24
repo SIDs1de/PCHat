@@ -7,7 +7,24 @@ export default {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        white: '#fff',
+        accent: '#3fb2ff',
+        'accent-on-hover': '#3fe2ff',
+        'dark-1': '#141414',
+        'dark-2': '#222',
+        'dark-3': '#333',
+        'dark-4': '#444',
+        'dark-5': '#555',
+        'dark-6': '#666',
+        'dark-8': '#888',
+        danger: '#ff3f3f',
+      },
+      fontFamily: {
+        montserrat: ['Montserrat', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 } satisfies Config
