@@ -20,6 +20,7 @@ export default {
         'dark-6': '#666',
         'dark-8': '#888',
         danger: '#ff3f3f',
+        'danger-on-hover': '#ff7676',
       },
       fontFamily: {
         montserrat: ['Montserrat', 'sans-serif'],
