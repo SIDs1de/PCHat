@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import submitImg from '@/assets/images/submit.svg'
 import clsx from 'clsx'
-import { AnimatePresence, motion, px } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 import checkImg from '@/assets/images/check.svg'
 import crossImg from '@/assets/images/cross.svg'
 import checkBoldImg from '@/assets/images/check-bold.svg'
@@ -76,7 +76,6 @@ export const LogIn = ({ setResult }) => {
 
   return (
     <>
-      {/* <span>{isSuccess && data.access_token}</span> */}
       <form
         onSubmit={handleSubmit(onSubmit)}
         className={clsx('text-black flex flex-col justify-center mt-[27px] transition-all duration-[0.25s]', {
@@ -198,6 +197,7 @@ export const LogIn = ({ setResult }) => {
         </div>
 
         <button
+          onClick={() => setErrorText('')}
           type='submit'
           className='mt-[24px] text-white text-[14px] flex items-center justify-center gap-[13px] py-[13px] px-[70px] bg-dark-4 max-w-[250px] mx-auto rounded-[6px] border-[2px] border-dark-5 hover:bg-dark-5 hover:border-dark-6 transition-all duration-[0.25s] active:scale-[0.97] active:transition-none focus:border-accent'
         >
