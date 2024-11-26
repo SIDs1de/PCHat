@@ -19,7 +19,7 @@ export default function SignIn() {
         <h1 className='text-[18px] mb-[10px]'>Авторизоваться</h1>
         <p className='text-[14px]'>
           Ещё нет аккаунта?{' '}
-          <Link href='/' className='text-accent hover:text-accent-on-hover transition-all duration-[0.25s]'>
+          <Link href='/profile/sign-up' className='text-accent hover:text-accent-on-hover transition-all duration-[0.25s]'>
             Зарегистрируйтесь
           </Link>
         </p>
