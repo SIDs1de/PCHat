@@ -3,13 +3,16 @@
 import { useSignInMutation } from '@/services/account'
 import { ISignInRequest } from '@/types'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import submitImg from '@/assets/images/submit.svg'
 import clsx from 'clsx'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, motion, px } from 'motion/react'
 import checkImg from '@/assets/images/check.svg'
 import crossImg from '@/assets/images/cross.svg'
+import checkBoldImg from '@/assets/images/check-bold.svg'
+import crossBoldImg from '@/assets/images/cross-bold.svg'
+import loaderImg from '@/assets/images/loader.svg'
 
 import styles from './style.module.scss'
 
@@ -19,15 +22,33 @@ interface ISignInError {
   }
 }
 
-export const LogIn = () => {
+export const LogIn = ({ setResult }) => {
   const [signIn, { data, isLoading, isSuccess, isError, error }] = useSignInMutation()
   const [errorText, setErrorText] = useState('')
+  const loadingRef = useRef<HTMLDivElement>(null)
+  const successRef = useRef<HTMLDivElement>(null)
+  const errorRef = useRef<HTMLDivElement>(null)
+  const [containerHeight, setContainerHeight] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (isLoading && loadingRef.current) {
+      setContainerHeight(loadingRef.current.offsetHeight)
+    } else if (isSuccess && successRef.current) {
+      setResult('success')
+      console.log(successRef.current)
+      setContainerHeight(successRef.current.offsetHeight)
+    } else if (errorText && errorRef.current) {
+      setResult('error')
+      setContainerHeight(errorRef.current.offsetHeight)
+    }
+  }, [isLoading, isSuccess, errorText, setResult])
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
+    reset,
   } = useForm<ISignInRequest>({
     mode: 'onChange',
   })
@@ -37,14 +58,17 @@ export const LogIn = () => {
 
   const onSubmit: SubmitHandler<ISignInRequest> = data => {
     signIn(data)
+    reset()
   }
 
   useEffect(() => {
     if (error) {
       if ('data' in error) {
         const TError = error as ISignInError
-        setErrorText(TError.data.error)
+        console.log(TError.data.error)
+        setErrorText('Указан неверный логин или пароль')
       } else {
+        setErrorText('Ошибка сервера, попробуйте позже')
         console.log('error', error)
       }
     }
@@ -52,8 +76,13 @@ export const LogIn = () => {
 
   return (
     <>
-      <span>{isSuccess && data.access_token}</span>
-      <form onSubmit={handleSubmit(onSubmit)} className='text-black flex flex-col justify-center mt-[27px]'>
+      {/* <span>{isSuccess && data.access_token}</span> */}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className={clsx('text-black flex flex-col justify-center mt-[27px] transition-all duration-[0.25s]', {
+          'pointer-events-none opacity-40': isLoading,
+        })}
+      >
         <div className='flex flex-col mb-[11px]'>
           <span className='relative'>
             <input
@@ -176,6 +205,53 @@ export const LogIn = () => {
           <Image src={submitImg} alt='Отправить' />
         </button>
       </form>
+
+      <AnimatePresence>
+        {(isLoading || isSuccess || errorText) && (
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: containerHeight || 'auto' }}
+            transition={{ duration: 0.4 }}
+            className='max-h-[83px]'
+          >
+            {isLoading ? (
+              <motion.p
+                ref={loadingRef}
+                className='mt-[30px] flex justify-center'
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4 }}
+              >
+                <Image src={loaderImg} alt='Загрузка...' />
+              </motion.p>
+            ) : isSuccess ? (
+              <motion.div
+                ref={successRef}
+                className='mt-[30px] flex flex-col items-center'
+                initial={{ y: -24, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.4 }}
+              >
+                <Image src={checkBoldImg} alt='Успешный вход!' className='mb-[12px]' />
+                <span className='text-[14px]'>Успешный вход!</span>
+              </motion.div>
+            ) : errorText ? (
+              <motion.div
+                ref={errorRef}
+                className='mt-[30px] flex flex-col items-center'
+                initial={{ y: -24, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.4 }}
+              >
+                <Image src={crossBoldImg} alt='Неуспешный вход!' className='mb-[12px]' />
+                <span className='text-[14px]'>{errorText}</span>
+              </motion.div>
+            ) : (
+              ''
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }

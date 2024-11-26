@@ -9,3 +9,7 @@ button {
     outline: none;
   }
 }
+
+::selection {
+  background-color: rgba($color-accent, 0.5);
+}
