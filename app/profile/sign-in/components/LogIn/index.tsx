@@ -16,8 +16,9 @@ import loaderImg from '@/assets/images/loader.svg'
 
 import styles from './style.module.scss'
 import { useRouter } from 'next/navigation'
-import { useAppDispatch } from '@/hooks/hooks'
+import { useAccessToken, useAppDispatch } from '@/hooks/hooks'
 import { setAccessToken } from '@/services/userSlice'
+import { toast } from 'react-toastify'
 
 interface ISignInError {
   data: {
@@ -26,7 +27,7 @@ interface ISignInError {
 }
 
 export const LogIn = ({ setResult }) => {
-  const [signIn, { data, isLoading, isSuccess, isError, error }] = useSignInMutation()
+  const [signIn, { data, isLoading, isSuccess, error }] = useSignInMutation()
   const [errorText, setErrorText] = useState('')
   const loadingRef = useRef<HTMLDivElement>(null)
   const successRef = useRef<HTMLDivElement>(null)
@@ -34,6 +35,8 @@ export const LogIn = ({ setResult }) => {
   const [containerHeight, setContainerHeight] = useState<number | null>(null)
   const router = useRouter()
   const dispatch = useAppDispatch()
+
+  const { setAccessToken: setAccessTokenToLocalStorage } = useAccessToken()
 
   useEffect(() => {
     if (isLoading && loadingRef.current) {
@@ -64,15 +67,12 @@ export const LogIn = ({ setResult }) => {
   })
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout
     if (isSuccess) {
-      timeoutId = setTimeout(() => {
-        router.push('/profile')
-      }, 3000)
+      toast.success('Вы успешно вошли в аккаунт!')
+      setAccessTokenToLocalStorage(data.access_token as string)
+      router.push('/profile')
     }
-
-    return () => clearTimeout(timeoutId)
-  }, [isSuccess, router])
+  }, [isSuccess, router, data, setAccessTokenToLocalStorage])
 
   const loginInputValue = watch('login')
   const passwordInputValue = watch('password')
@@ -228,7 +228,7 @@ export const LogIn = ({ setResult }) => {
       </form>
 
       <AnimatePresence>
-        {(isLoading || isSuccess || errorText) && (
+        {(isLoading || errorText) && (
           <motion.div
             initial={{ height: 0 }}
             animate={{ height: containerHeight || 'auto' }}
@@ -245,17 +245,6 @@ export const LogIn = ({ setResult }) => {
               >
                 <Image src={loaderImg} alt='Загрузка...' />
               </motion.p>
-            ) : isSuccess ? (
-              <motion.div
-                ref={successRef}
-                className='mt-[30px] flex flex-col items-center'
-                initial={{ y: -24, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.4 }}
-              >
-                <Image src={checkBoldImg} alt='Успешный вход!' className='mb-[12px]' />
-                <span className='text-[14px]'>Успешный вход!</span>
-              </motion.div>
             ) : errorText ? (
               <motion.div
                 ref={errorRef}

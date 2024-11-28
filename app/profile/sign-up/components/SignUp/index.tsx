@@ -16,6 +16,7 @@ import loaderImg from '@/assets/images/loader.svg'
 
 import styles from './style.module.scss'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
 
 interface ISignUpError {
   data: {
@@ -71,15 +72,11 @@ export const SignUp = ({ setResult }) => {
   }
 
   useEffect(() => {
-    let timeoutId
     if (isSuccess) {
-      timeoutId = setTimeout(() => {
-        router.push('/profile/sign-in')
-      }, 3000)
+      toast.success(`Вы успешно создали аккаунт!`)
+      router.push('/profile/sign-in')
     }
-
-    return () => clearTimeout(timeoutId)
-  }, [isSuccess, router])
+  }, [isSuccess, router, data])
 
   useEffect(() => {
     if (error) {
@@ -337,6 +334,7 @@ export const SignUp = ({ setResult }) => {
         </div>
 
         <button
+          onClick={() => setErrorText('')}
           type='submit'
           className='mt-[24px] text-white text-[14px] flex items-center justify-center gap-[13px] py-[13px] px-[70px] bg-dark-4 max-w-[250px] mx-auto rounded-[6px] border-[2px] border-dark-5 hover:bg-dark-5 hover:border-dark-6 transition-all duration-[0.25s] active:scale-[0.97] active:transition-none focus:border-accent'
         >
@@ -346,7 +344,7 @@ export const SignUp = ({ setResult }) => {
       </form>
 
       <AnimatePresence>
-        {(isLoading || isSuccess || errorText) && (
+        {(isLoading || errorText) && (
           <motion.div
             initial={{ height: 0 }}
             animate={{ height: containerHeight || 'auto' }}
@@ -363,18 +361,6 @@ export const SignUp = ({ setResult }) => {
               >
                 <Image src={loaderImg} alt='Загрузка...' />
               </motion.p>
-            ) : isSuccess ? (
-              <motion.div
-                ref={successRef}
-                className='mt-[30px] flex flex-col items-center'
-                initial={{ y: -24, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.4 }}
-              >
-                <Image src={checkBoldImg} alt='Успешная регистрация!' className='mb-[12px]' />
-                <span className='text-[14px]'>Аккаунт успешно зарегистрирован!</span>
-                <span className='text-[14px]'>Ваш id: {data.id}</span>
-              </motion.div>
             ) : errorText ? (
               <motion.div
                 ref={errorRef}
