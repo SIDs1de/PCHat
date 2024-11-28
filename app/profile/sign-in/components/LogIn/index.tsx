@@ -15,6 +15,9 @@ import crossBoldImg from '@/assets/images/cross-bold.svg'
 import loaderImg from '@/assets/images/loader.svg'
 
 import styles from './style.module.scss'
+import { useRouter } from 'next/navigation'
+import { useAppDispatch } from '@/hooks/hooks'
+import { setAccessToken } from '@/services/userSlice'
 
 interface ISignInError {
   data: {
@@ -29,19 +32,26 @@ export const LogIn = ({ setResult }) => {
   const successRef = useRef<HTMLDivElement>(null)
   const errorRef = useRef<HTMLDivElement>(null)
   const [containerHeight, setContainerHeight] = useState<number | null>(null)
+  const router = useRouter()
+  const dispatch = useAppDispatch()
 
   useEffect(() => {
     if (isLoading && loadingRef.current) {
       setContainerHeight(loadingRef.current.offsetHeight)
     } else if (isSuccess && successRef.current) {
       setResult('success')
-      console.log(successRef.current)
       setContainerHeight(successRef.current.offsetHeight)
     } else if (errorText && errorRef.current) {
       setResult('error')
       setContainerHeight(errorRef.current.offsetHeight)
     }
   }, [isLoading, isSuccess, errorText, setResult])
+
+  useEffect(() => {
+    if (isSuccess) {
+      dispatch(setAccessToken({ accessToken: data.access_token }))
+    }
+  }, [isSuccess, data, dispatch])
 
   const {
     register,
@@ -50,8 +60,19 @@ export const LogIn = ({ setResult }) => {
     watch,
     reset,
   } = useForm<ISignInRequest>({
-    mode: 'onChange',
+    mode: 'all',
   })
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout
+    if (isSuccess) {
+      timeoutId = setTimeout(() => {
+        router.push('/profile')
+      }, 3000)
+    }
+
+    return () => clearTimeout(timeoutId)
+  }, [isSuccess, router])
 
   const loginInputValue = watch('login')
   const passwordInputValue = watch('password')

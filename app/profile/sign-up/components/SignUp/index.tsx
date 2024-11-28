@@ -15,8 +15,9 @@ import crossBoldImg from '@/assets/images/cross-bold.svg'
 import loaderImg from '@/assets/images/loader.svg'
 
 import styles from './style.module.scss'
+import { useRouter } from 'next/navigation'
 
-interface ISignInError {
+interface ISignUpError {
   data: {
     error: string
   }
@@ -33,13 +34,13 @@ export const SignUp = ({ setResult }) => {
   const successRef = useRef<HTMLDivElement>(null)
   const errorRef = useRef<HTMLDivElement>(null)
   const [containerHeight, setContainerHeight] = useState<number | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     if (isLoading && loadingRef.current) {
       setContainerHeight(loadingRef.current.offsetHeight)
     } else if (isSuccess && successRef.current) {
       setResult('success')
-      console.log(successRef.current)
       setContainerHeight(successRef.current.offsetHeight)
     } else if (errorText && errorRef.current) {
       setResult('error')
@@ -53,12 +54,16 @@ export const SignUp = ({ setResult }) => {
     formState: { errors },
     watch,
     reset,
+    trigger,
+    getValues,
   } = useForm<ISignUpRequestExtended>({
-    mode: 'onChange',
+    mode: 'all',
   })
 
   const loginInputValue = watch('login')
+  const nameInputValue = watch('name')
   const passwordInputValue = watch('password')
+  const repeatedPasswordInputValue = watch('repeatedPassword')
 
   const onSubmit: SubmitHandler<ISignUpRequestExtended> = data => {
     signUp(data)
@@ -66,11 +71,22 @@ export const SignUp = ({ setResult }) => {
   }
 
   useEffect(() => {
+    let timeoutId
+    if (isSuccess) {
+      timeoutId = setTimeout(() => {
+        router.push('/profile/sign-in')
+      }, 3000)
+    }
+
+    return () => clearTimeout(timeoutId)
+  }, [isSuccess, router])
+
+  useEffect(() => {
     if (error) {
       if ('data' in error) {
-        const TError = error as ISignInError
+        const TError = error as ISignUpError
         console.log(TError.data.error)
-        setErrorText('Указан неверный логин или пароль')
+        setErrorText('Ошибка в заполнении формы (возможно, логин уже занят)')
       } else {
         setErrorText('Ошибка сервера, попробуйте позже')
         console.log('error', error)
@@ -106,32 +122,32 @@ export const SignUp = ({ setResult }) => {
                 styles.input,
                 {
                   'border-danger focus:border-danger hover:border-danger-on-hover focus:hover:border-danger-on-hover':
-                    errors.login,
+                    errors.name,
                   'border-dark-4 focus:border-accent hover:border-accent-on-hover focus:hover:border-accent-on-hover':
-                    !errors.login,
+                    !errors.name,
                 }
               )}
             />
 
             <AnimatePresence>
-              {(errors.login || loginInputValue) && (
+              {(errors.name || nameInputValue) && (
                 <motion.div
                   className='absolute top-[50%] right-[17px] origin-center w-[17px] h-[17px]'
                   initial={{ scale: 0, translateY: '-50%' }}
                   animate={{ scale: 1, translateY: '-50%' }}
                   transition={{ type: 'spring', stiffness: 450, damping: 17 }}
                 >
-                  {loginInputValue && !errors.login && (
+                  {nameInputValue && !errors.name && (
                     <Image src={checkImg} alt='Правильно' className='w-[100%] h-[100%]' />
                   )}
 
-                  {errors.login && <Image src={crossImg} alt='Неправильно' className='w-[100%] h-[100%]' />}
+                  {errors.name && <Image src={crossImg} alt='Неправильно' className='w-[100%] h-[100%]' />}
                 </motion.div>
               )}
             </AnimatePresence>
           </span>
           <AnimatePresence>
-            {errors.login && (
+            {errors.name && (
               <motion.div
                 className='text-danger text-[14px] text-left overflow-hidden'
                 initial={{ height: 0, opacity: 0, y: 12 }}
@@ -139,7 +155,7 @@ export const SignUp = ({ setResult }) => {
                 exit={{ height: 0, opacity: 0, y: 12 }}
                 transition={{ duration: 0.3 }}
               >
-                {errors.login?.message}
+                {errors.name?.message}
               </motion.div>
             )}
           </AnimatePresence>
@@ -214,6 +230,7 @@ export const SignUp = ({ setResult }) => {
                   value: 5,
                   message: 'Минимальная длина — 5 символов',
                 },
+                onChange: () => trigger('repeatedPassword'),
               })}
               placeholder='Пароль'
               className={clsx(
@@ -269,6 +286,11 @@ export const SignUp = ({ setResult }) => {
                   value: 5,
                   message: 'Минимальная длина — 5 символов',
                 },
+                validate: (val: string) => {
+                  if (getValues('password') != val) {
+                    return 'Пароли не совпадают'
+                  }
+                },
               })}
               placeholder='Повторите пароль'
               className={clsx(
@@ -276,31 +298,31 @@ export const SignUp = ({ setResult }) => {
                 styles.input,
                 {
                   'border-danger focus:border-danger hover:border-danger-on-hover focus:hover:border-danger-on-hover':
-                    errors.password,
+                    errors.repeatedPassword,
                   'border-dark-4 focus:border-accent hover:border-accent-on-hover focus:hover:border-accent-on-hover':
-                    !errors.password,
+                    !errors.repeatedPassword,
                 }
               )}
             />
             <AnimatePresence>
-              {(errors.password || passwordInputValue) && (
+              {(errors.repeatedPassword || repeatedPasswordInputValue) && (
                 <motion.div
                   className='absolute top-[50%] right-[17px] origin-center w-[17px] h-[17px]'
                   initial={{ scale: 0, translateY: '-50%' }}
                   animate={{ scale: 1, translateY: '-50%' }}
                   transition={{ type: 'spring', stiffness: 450, damping: 17 }}
                 >
-                  {passwordInputValue && !errors.password && (
+                  {repeatedPasswordInputValue && !errors.repeatedPassword && (
                     <Image src={checkImg} alt='Правильно' className='w-[100%] h-[100%]' />
                   )}
 
-                  {errors.password && <Image src={crossImg} alt='Неправильно' className='w-[100%] h-[100%]' />}
+                  {errors.repeatedPassword && <Image src={crossImg} alt='Неправильно' className='w-[100%] h-[100%]' />}
                 </motion.div>
               )}
             </AnimatePresence>
           </span>
           <AnimatePresence>
-            {errors.password && (
+            {errors.repeatedPassword && (
               <motion.div
                 className='text-danger text-[14px] text-left overflow-hidden'
                 initial={{ height: 0, opacity: 0, y: 12 }}
@@ -308,7 +330,7 @@ export const SignUp = ({ setResult }) => {
                 exit={{ height: 0, opacity: 0, y: 12 }}
                 transition={{ duration: 0.3 }}
               >
-                {errors.password?.message}
+                {errors.repeatedPassword?.message}
               </motion.div>
             )}
           </AnimatePresence>
@@ -349,8 +371,9 @@ export const SignUp = ({ setResult }) => {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.4 }}
               >
-                <Image src={checkBoldImg} alt='Успешный вход!' className='mb-[12px]' />
-                <span className='text-[14px]'>Успешный вход!</span>
+                <Image src={checkBoldImg} alt='Успешная регистрация!' className='mb-[12px]' />
+                <span className='text-[14px]'>Аккаунт успешно зарегистрирован!</span>
+                <span className='text-[14px]'>Ваш id: {data.id}</span>
               </motion.div>
             ) : errorText ? (
               <motion.div

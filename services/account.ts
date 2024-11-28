@@ -5,7 +5,7 @@ const baseQueryUrl = process.env.NEXT_PUBLIC_SERVER_URL as string
 
 export const accountApi = createApi({
   reducerPath: 'accountApi',
-  baseQuery: fetchBaseQuery({ baseUrl: baseQueryUrl }),
+  baseQuery: fetchBaseQuery({ baseUrl: baseQueryUrl, credentials: 'include' }),
   endpoints: builder => ({
     signIn: builder.mutation<IAccessToken, ISignInRequest>({
       query: body => ({
