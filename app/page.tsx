@@ -1,14 +1,17 @@
-// import { LogIn } from './profile/sign-in/components/LogIn'
-// import { LogOut } from './LogOut'
-// import { SignUp } from './SignUp'
+'use client'
+import { motion } from 'motion/react'
 
 export default function Home() {
   return (
     <>
-      Home
-      {/* <LogIn /> */}
-      {/* <SignUp /> */}
-      {/* <LogOut /> */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.3 }}
+      >
+        Home
+      </motion.div>
     </>
   )
 }

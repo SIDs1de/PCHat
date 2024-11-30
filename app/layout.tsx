@@ -7,6 +7,8 @@ import clsx from 'clsx'
 import Navigation from '@/components/Navigation'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { AnimatePresence, motion } from 'motion/react'
+import AnimateWrapper from './AnimateWrapper'
 
 export const metadata: Metadata = {
   title: 'PCHat - чат для программистов',
@@ -31,10 +33,12 @@ export default function RootLayout({
             <header className='mb-[19px] bg-dark-2 py-[9px] px-[25px] rounded-[10px]'>
               <Navigation />
             </header>
-            <main className='bg-dark-2 rounded-[12px]'>
-              {children}
-              <ToastContainer position='top-right' autoClose={3000} />
-            </main>
+            <AnimateWrapper>
+              <main className='bg-dark-2 rounded-[12px]'>
+                {children}
+                <ToastContainer position='top-right' autoClose={3000} />
+              </main>
+            </AnimateWrapper>
           </div>
         </body>
       </html>

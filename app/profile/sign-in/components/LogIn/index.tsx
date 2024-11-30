@@ -68,7 +68,22 @@ export const LogIn = ({ setResult }) => {
 
   useEffect(() => {
     if (isSuccess) {
-      toast.success('Вы успешно вошли в аккаунт!')
+      toast.success('Вы успешно вошли в аккаунт!', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        theme: 'dark', 
+        style: {
+          backgroundColor: '#333', // Цвет фона
+          color: '#fff', // Цвет текста
+          fontFamily: 'Montserrat, sans-serif', // Шрифт
+          fontSize: '15px', // Размер шрифта
+          borderRadius: '8px', // Скругление углов
+        },
+      })
       setAccessTokenToLocalStorage(data.access_token as string)
       router.push('/profile')
     }
